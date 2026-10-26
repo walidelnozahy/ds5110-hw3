@@ -1,0 +1,6 @@
+raw/
+data/*.db
+__pycache__/
+.venv/
+.DS_Store
+*.pdf
