@@ -4,7 +4,34 @@
 
 ## Step 1 – Acquire the data reproducibly
 
+`src/download.py` downloads `ml-100k.zip` from GroupLens and unzips it into `raw/`. `make download` runs it only if the data isn't there yet.
+
+- The dataset's terms say the data may not be shared, so `raw/` is in `.gitignore` and each of us downloads our own copy.
+- GroupLens publishes an MD5 checksum (a fingerprint of the file) next to the zip. The script checks the download against it and stops if they differ, so everyone works from the exact same file. The checksum and download date are in the README.
+- We never edit the raw files. Any fixes happen in code.
+
 ## Step 2 – Design the schema
+
+The tables are in `sql/schema.sql`, and the diagram is in the README.
+
+**(a) The tables.** One table per raw file: `users`, `movies` and `ratings`. Then `movie_genres`, with one row per movie and genre, and two short lookup lists, `genres` and `occupations`. Each rating points to a user and a movie, so a rating for a user or movie that doesn't exist is refused.
+
+**(b) Genres as rows.** In `u.item`, the 19 genres are 19 yes/no columns. But they're all values of one thing, the movie's genre, which breaks the tidy rule that each variable gets one column. So `movie_genres` stores one row per movie and genre. "Ratings per genre" then becomes one `GROUP BY`, and a misspelled genre is refused because it must exist in `genres`.
+
+**(c) A rule for each promise in the README.**
+
+| The README says | Our rule |
+| --- | --- |
+| Ratings are 1 to 5 | `rating` must be between 1 and 5 |
+| Users and movies are numbered from 1 | `user_id` and `movie_id` must be 1 or more |
+| The ids in `u.data` are the ones in `u.user` and `u.item` | `ratings` points to `users` and `movies` |
+| Timestamps are seconds since 1970 (UTC) | `timestamp` is a whole number, never empty |
+| Ratings were collected from Sept 19, 1997 to April 22, 1998 | `timestamp` must fall between those two days |
+| Users with missing information were removed | `age`, `gender`, `occupation` and `zip` can't be empty |
+
+A rule only looks at one row at a time, so some promises can't be checked this way: the totals (100,000 ratings, 943 users, 1,682 movies), "numbered with no gaps", and "every user rated at least 20 movies". We check those with queries in Step 4.
+
+**(d) Zip codes are text.** A zip code is a label, not a number you'd add up. Some start with 0, which a number column would drop. Some contain letters (Canadian codes like `T8H1N`), which a number column would refuse.
 
 ## Step 3 – Load the data and keep what is refused
 
