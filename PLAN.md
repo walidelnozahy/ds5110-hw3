@@ -2,6 +2,8 @@
 
 The work is split into six tasks. Each task is one GitHub issue and one pull request (PR). The issue has the full checklist for that task.
 
+Track progress on the [task board](https://github.com/users/walidelnozahy/projects/2): move your card to **In progress** when you start, and to **In review** when you open your PR. It moves to **Done** by itself when the PR is merged.
+
 ## Who is who
 
 - **A** is Walid.
