@@ -1,33 +1,33 @@
 # DS5110 Homework 3: MovieLens 100K in SQLite
 
-This repo downloads the MovieLens 100K files, loads them into a SQLite database whose schema enforces what the dataset's README claims, keeps every row the schema refuses, and answers questions about the data in SQL.
+This project takes the MovieLens 100K movie ratings and puts them into a small SQLite database. The database has rules that check the promises the dataset's README makes, like "every rating is between 1 and 5". When a row breaks a rule, the database refuses it, and we save that row with the reason. Then we answer questions about the data in SQL.
 
-Answers to every step are in [`WRITEUP.md`](WRITEUP.md).
+Our answers to every step of the homework are in [`WRITEUP.md`](WRITEUP.md).
 
-## Layout
+## What's in this repo
 
 ```
-raw/                  downloaded by `make`, never committed or edited
-sql/schema.sql        the schema: every constraint is a claim about the data
-sql/queries/          one query per file, each with its prediction and actual row count
-src/download.py       downloads and checks the zip, unpacks it into raw/
-src/load.py           builds data/movielens.db and records refused rows
-src/run_queries.py    runs every query and prints its result and row count
-output/rejected.csv   refused rows with SQLite's error message (generated)
-data/movielens.db     the database (generated, not committed)
-figures/              Step 0 charts of the raw data
-Makefile
+raw/                  the downloaded data; `make` fills it, and it is never committed or edited
+sql/schema.sql        the database design: the tables, how they link, and the rules each row must follow
+sql/queries/          one SQL question per file, each starting with our guess and the real row count
+src/download.py       downloads the data, checks it's the right file, and unzips it into raw/
+src/load.py           builds the database from raw/ and saves every refused row
+src/run_queries.py    runs every query and prints its result and how many rows it returned
+output/rejected.csv   every refused row, with SQLite's reason for refusing it
+data/movielens.db     the database itself; `make` builds it, and it is never committed
+figures/              the charts of the raw data from Step 0
+Makefile              the commands below
 ```
 
-## Requirements
+## What you need
 
-Python 3 whose built-in SQLite is 3.37 or newer, because the schema uses `STRICT` tables. Check with:
+Python 3 with SQLite 3.37 or newer inside it, because our tables use `STRICT` mode (it makes SQLite refuse a value of the wrong type instead of quietly storing it). Check your version with:
 
 ```bash
 python3 -c "import sqlite3; print(sqlite3.sqlite_version)"
 ```
 
-Then install the two libraries:
+Then install the two libraries we use:
 
 ```bash
 python3 -m venv .venv
@@ -35,28 +35,28 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run it
+## How to run it
 
 ```bash
-make            # download the data if needed, rebuild data/movielens.db from scratch
-make download   # only download and unpack the data into raw/
+make            # download the data if it isn't there yet, then build the database from scratch
+make download   # only download the data and unzip it into raw/
 make queries    # run every query in sql/queries/ and print the results
-make clean      # delete the generated database and rejected rows
+make clean      # delete the database and the refused-rows file, so the next `make` starts fresh
 ```
 
-## Data source
+## Where the data comes from
 
-- **Dataset:** MovieLens 100K, GroupLens Research, University of Minnesota. Page: https://grouplens.org/datasets/movielens/100k/
-- **File:** https://files.grouplens.org/datasets/movielens/ml-100k.zip (4,924,029 bytes)
-- **Downloaded:** 2026-10-26 (UTC)
-- **MD5:** `0e33842e24a9c977be4e0107933c0723`, the same value GroupLens publishes at the file URL + `.md5`
-- **SHA-256:** `50d2a982c66986937beb9ffb3aa76efe955bf3d5c6b761f4e3a7cd717c6a3229`
+- **Dataset:** MovieLens 100K, made by GroupLens Research at the University of Minnesota. Its page: https://grouplens.org/datasets/movielens/100k/
+- **The file we download:** https://files.grouplens.org/datasets/movielens/ml-100k.zip (4,924,029 bytes)
+- **Downloaded on:** 2026-10-26 (UTC)
+- **MD5 checksum:** `0e33842e24a9c977be4e0107933c0723`. GroupLens publishes this same value next to the file, at the file's address + `.md5`.
+- **SHA-256 checksum:** `50d2a982c66986937beb9ffb3aa76efe955bf3d5c6b761f4e3a7cd717c6a3229`
 
-`src/download.py` stops if the MD5 does not match, so anyone who runs `make` gets exactly these files.
+A checksum is a fingerprint of the file: if even one byte were different, the checksum would be different too. `src/download.py` stops with an error if the MD5 doesn't match, so everyone who runs `make` gets exactly the same files we used.
 
-**Terms of use.** The README in the zip says the data may not be redistributed without permission, which is why `raw/` is in `.gitignore` and the repo downloads it instead. Its required citation: F. Maxwell Harper and Joseph A. Konstan. 2015. The MovieLens Datasets: History and Context. *ACM Transactions on Interactive Intelligent Systems* 5, 4, Article 19. https://doi.org/10.1145/2827872
+**Terms of use.** The README inside the zip says we may not share the data with others without permission. That's why the `raw/` folder is in `.gitignore` and the repo downloads the data instead of including it. The README also asks that we cite this paper: F. Maxwell Harper and Joseph A. Konstan. 2015. The MovieLens Datasets: History and Context. *ACM Transactions on Interactive Intelligent Systems* 5, 4, Article 19. https://doi.org/10.1145/2827872
 
-## Schema
+## How the tables connect
 
 ```mermaid
 erDiagram
@@ -97,8 +97,10 @@ erDiagram
     }
 ```
 
-`u.user`, `u.item` and `u.data` become `users`, `movies` and `ratings`. The 19 genre flags in `u.item` become rows of `movie_genres`, and `u.genre` and `u.occupation` become the two lookup tables. Why each constraint is there: [`WRITEUP.md`, Step 2](WRITEUP.md#step-2--design-the-schema).
+How to read it: **PK** (primary key) is the column that identifies each row, so no two rows can share it. **FK** (foreign key) is a column that points to a row in another table, and the database refuses a value that points to nothing.
+
+The three main files become three tables: `u.user` becomes `users`, `u.item` becomes `movies`, and `u.data` becomes `ratings`. The 19 yes/no genre columns in `u.item` become rows in `movie_genres`. The lists of genres and occupations become two small lookup tables. Why each rule is there is explained in [Step 2 of the write-up](WRITEUP.md#step-2--design-the-schema).
 
 ## Use of AI
 
-- **Walid:** used Claude (Anthropic) to plan the team split, draft `src/download.py`, the Makefile and this README, and to check the schema's comments against the raw data. I reviewed every line and can explain each one.
+- **Walid:** used Claude (Anthropic) to plan how we split the work, to draft `src/download.py`, the Makefile and this README, and to check the comments in the schema against the raw data. I reviewed every line and can explain each one.
