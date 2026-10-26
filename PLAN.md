@@ -1,6 +1,6 @@
 # How we're splitting Homework 3
 
-Due **Friday, October 30**. The work is split into six tasks. Each task is one GitHub issue and one pull request (PR). The issue has the full checklist for that task.
+The work is split into six tasks. Each task is one GitHub issue and one pull request (PR). The issue has the full checklist for that task.
 
 ## Who is who
 
@@ -9,23 +9,14 @@ Due **Friday, October 30**. The work is split into six tasks. Each task is one G
 
 ## The tasks
 
-| PR | Who | What you do | Finish by |
+| PR | Who | What you do | Start |
 | --- | --- | --- | --- |
-| [PR 1](https://github.com/walidelnozahy/ds5110-hw3/issues/1) | A | Set up the repo, write the download script, and design the database tables | Monday, Oct 26 |
-| [PR 2](https://github.com/walidelnozahy/ds5110-hw3/issues/2) | C | Look at the three raw data files and make two charts | Tuesday, Oct 27 |
-| [PR 3](https://github.com/walidelnozahy/ds5110-hw3/issues/3) | B | Load the data into the database and save every row it refuses | Tuesday, Oct 27 |
-| [PR 4](https://github.com/walidelnozahy/ds5110-hw3/issues/4) | C | Check the README's numbers and answer the six SQL questions | Thursday, Oct 29, noon |
-| [PR 5](https://github.com/walidelnozahy/ds5110-hw3/issues/5) | B | Write the long step-by-step query and look at missing values | Thursday, Oct 29, noon |
-| [PR 6](https://github.com/walidelnozahy/ds5110-hw3/issues/6) | A | Final check: write the last paragraph, finish the README, and test a fresh copy | Thursday, Oct 29, evening |
-
-Friday is kept free in case something goes wrong.
-
-## What has to wait for what
-
-- **PR 2** can start right away. It only needs the raw data: run `make download`.
-- **PR 3** starts once PR 1 is merged, because it needs the database tables.
-- **PR 4** and **PR 5** start once PR 3 is merged, because they need the loaded database. C can write the guesses for PR 4 before that.
-- **PR 6** comes last, once everything else is merged.
+| [PR 1](https://github.com/walidelnozahy/ds5110-hw3/issues/1) | A | Set up the repo, write the download script, and design the database tables | now |
+| [PR 2](https://github.com/walidelnozahy/ds5110-hw3/issues/2) | C | Look at the three raw data files and make two charts | now (run `make download` to get the data) |
+| [PR 3](https://github.com/walidelnozahy/ds5110-hw3/issues/3) | B | Load the data into the database and save every row it refuses | after PR 1 is merged |
+| [PR 4](https://github.com/walidelnozahy/ds5110-hw3/issues/4) | C | Check the README's numbers and answer the six SQL questions | after PR 3 is merged (you can write your guesses before that) |
+| [PR 5](https://github.com/walidelnozahy/ds5110-hw3/issues/5) | B | Write the long step-by-step query and look at missing values | after PR 3 is merged |
+| [PR 6](https://github.com/walidelnozahy/ds5110-hw3/issues/6) | A | Final check: write the last paragraph, finish the README, and test a fresh copy | after PRs 2–5 are merged |
 
 ## How we work
 
