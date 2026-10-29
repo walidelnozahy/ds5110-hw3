@@ -13,7 +13,11 @@ download: raw/ml-100k/u.data
 data/movielens.db: sql/schema.sql src/load.py raw/ml-100k/u.data
 	$(PYTHON) src/load.py raw/ml-100k $@
 
+# Run every query in sql/queries/ against the database, in name order.
+queries: data/movielens.db
+	@for f in sql/queries/*.sql; do echo "== $$f"; sqlite3 -header -column data/movielens.db < $$f || exit 1; done
+
 clean:
 	rm -f data/movielens.db output/rejected.csv
 
-.PHONY: all download clean
+.PHONY: all download queries clean
