@@ -62,10 +62,29 @@ A rule only looks at one row at a time, so some promises can't be checked this w
 
 ## Step 4 – Check the README's claims
 
+One query per claim, in `sql/queries/check_*.sql`. All three claims hold.
+
+| Claim | Query | Result |
+| --- | --- | --- |
+| 100,000 ratings, 943 users, 1,682 movies | `check_1_counts.sql` | 100,000 / 943 / 1,682. All 943 users and all 1,682 movies appear in `ratings`. |
+| Numbered consecutively from 1 | `check_2_consecutive_ids.sql` | Users run 1 to 943 and movies 1 to 1,682. Max equals count, so there are no gaps. |
+| Every user rated at least 20 movies | `check_3_min_20_ratings.sql` | The fewest ratings by any user is 20, and 0 users have fewer. |
+
 ## Step 5 – Answer questions in SQL
+
+Each query is in `sql/queries/`, with the predicted and actual row counts in a comment at the top. `make queries` runs them all. The predicted counts are TODO until Sandeep writes his guesses.
+
+- **Q1** returns 10 rows. Star Wars (1977) is first with 583 ratings. I used `RANK()` so that movies tied with 10th place would all be kept, but 10th place (429) is not tied.
+- **Q2** returns 7 rows out of 21 occupations. Educators rate highest (3.671) and students lowest (3.515). The raters condition goes in `HAVING` because it is about a whole group, and `WHERE` runs before the groups exist.
+- **Q3** is 18 users, all with Canadian-style codes like `T8H1N`. With `zip` as `INTEGER`, a STRICT table would refuse those rows, so the answer would be 0 and the 18 users would be missing.
+- **Q4** has 19 rows (18 genres plus `unknown`). The genre counts add up to 212,595, which is 112,595 more than 100,000, because a rating of a multi-genre movie is counted once per genre. Drama is the biggest genre (39,895 ratings) and Film-Noir has the highest mean (3.922).
+- **Q5** returns 8 rows, September 1997 to April 1998. November 1997 is the busiest month (23,980). A month with no ratings would not appear, because `GROUP BY` only sees rows that exist.
+- **Q6** returns 268 movies. `EXCEPT` fits because the question is "in set A but not in set B", where A is the movies a student rated and B is the movies a programmer rated. `UNION` gives A or B, and `INTERSECT` gives both.
 
 ## Step 6 – Build a query from named steps
 
 ## Step 7 – Missing values in SQL and in pandas
+
+**(d) Q6 again in pandas.** `src/q6_pandas.py` reads the ratings joined to users with `read_sql` and takes the difference of two Python sets. It finds 1,339 movies rated by a student, 1,133 by a programmer, and 268 for students but no programmer, the same as the SQL. The counts match, so there is nothing to explain.
 
 ## Step 8 – Where SQL earns its place
