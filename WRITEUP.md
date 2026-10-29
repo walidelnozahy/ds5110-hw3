@@ -35,6 +35,31 @@ A rule only looks at one row at a time, so some promises can't be checked this w
 
 ## Step 3 – Load the data and keep what is refused
 
+`src/load.py` reads from `raw/ml-100k/` and creates `data/movielens.db`. Running `make` downloads the files if missing and builds the database from scratch.
+
+**(a) What we predicted.** Before running the load, we expected the exact counts promised by the README: 943 users, 1,682 movies, 100,000 ratings, 19 genres, 21 occupations, and > 2,000 rows in `movie_genres` because movies have multiple genres. We expected potential refusals on movie 267 (blank fields), Canadian zip codes with letters, and the raw dates in `u.item` (`01-Jan-1995`) which don't match SQLite's ISO date format (`YYYY-MM-DD`).
+
+**(b) The refused rows.** Any row that broke a rule was caught by SQLite and logged to `output/rejected.csv` with the table name, the raw line, and the error. Our final load produced 0 refused rows.
+
+**(c) Decisions made in code.**
+- **Dates to ISO format**: In `schema.sql`, `movies.release_date` checks that `release_date = date(release_date)`. The raw dates in `u.item` are `DD-Mon-YYYY` (like `01-Jan-1995`). Dropping 1,681 movies over date formatting would wreck the dataset, and editing the raw text files is forbidden. Instead, `load.py` converts valid dates into ISO strings (`YYYY-MM-DD`) in Python before inserting them.
+- **Blank values to NULL**: In `u.item`, blank video release dates, IMDb URLs, and movie 267's missing release date were read as `None` (SQL `NULL`). The schema allows `NULL` for these columns, so movie 267 was inserted without being dropped.
+- **Zip codes kept as text**: Users with Canadian postal codes (like `M4V1L5`) inserted cleanly because `zip` was set as `TEXT`, not `INTEGER`.
+- **Order of operations**: We loaded `genres` and `occupations` first, then `users` and `movies`, and finally `movie_genres` and `ratings`. This ensured foreign keys always found their parent rows.
+
+**(d) Makefile target.** We wired up the `Makefile` so that `make` depends on `data/movielens.db`. If the database is missing, it runs `src/download.py` if needed, then `src/load.py raw/ml-100k data/movielens.db`.
+
+**(e) Expected vs actual counts.**
+
+| Table | Expected | Actual | Refused | Why there's a difference |
+| --- | --- | --- | --- | --- |
+| `occupations` | 21 | 21 | 0 | Exact match. |
+| `genres` | 19 | 19 | 0 | Exact match. |
+| `users` | 943 | 943 | 0 | Exact match; `zip TEXT` handles non-digits. |
+| `movies` | 1,682 | 1,682 | 0 | Exact match; dates were normalized in code. |
+| `movie_genres` | > 2,000 | 2,893 | 0 | Exact match; captured all multi-genre flags. |
+| `ratings` | 100,000 | 100,000 | 0 | Exact match; all timestamps were valid. |
+
 ## Step 4 – Check the README's claims
 
 ## Step 5 – Answer questions in SQL
