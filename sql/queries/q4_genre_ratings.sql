@@ -1,5 +1,5 @@
 -- Q4: per genre, number of ratings and mean rating; then the sum of the counts vs 100,000.
--- Predicted rows: TODO (your guess)
+-- Predicted rows: 19 (18 genres plus unknown)
 -- Actual rows: 19 (one per genre, including 'unknown') + 1 total row
 -- Gap: a movie in several genres is counted once per genre, so the genre counts add up to more
 --      than 100,000 ratings. The total row shows the sum and how far it overshoots.

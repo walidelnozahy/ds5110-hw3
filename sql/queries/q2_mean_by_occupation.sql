@@ -1,5 +1,5 @@
 -- Q2: mean rating per occupation, only occupations with at least 50 raters.
--- Predicted rows: TODO (your guess)
+-- Predicted rows: 7 (only the larger occupations reach 50 raters)
 -- Actual rows: 7
 -- Gap: 21 occupations exist, but only 7 have at least 50 raters; the other 14 are dropped.
 -- WHERE filters individual ratings before grouping; here it has no row filter at all.

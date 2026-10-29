@@ -1,5 +1,5 @@
 -- Q3: users whose zip does not start with a digit.
--- Predicted rows: TODO (your guess; this query returns one row, a count)
+-- Predicted rows: 1 (a single count row; the count itself is 18)
 -- Actual rows: 1 (the count is 18)
 -- Gap: none in rows; the answer is 18 users. GLOB '[0-9]*' matches zips starting with a digit; NOT GLOB finds the rest (Canadian codes).
 -- If zip were INTEGER: a STRICT INTEGER column refuses text like 'T8H1N', so those users would

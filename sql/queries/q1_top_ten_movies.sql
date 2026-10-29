@@ -1,5 +1,5 @@
 -- Q1: ten most-rated movies, ties handled deliberately.
--- Predicted rows: TODO (your guess)
+-- Predicted rows: 10 (a top-10 list; more only if ties at 10th place)
 -- Actual rows: 10
 -- Gap: none. RANK() keeps every movie tied with 10th place, so ties could have given more than 10
 --      rows, where LIMIT 10 would cut a tie arbitrarily. Here 10th place (429) is not tied.

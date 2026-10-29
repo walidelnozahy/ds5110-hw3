@@ -1,5 +1,5 @@
 -- Q6: movies rated by at least one student but by no programmer.
--- Predicted rows: TODO (your guess)
+-- Predicted rows: 268 (students rated far more movies than programmers did)
 -- Actual rows: 268
 -- EXCEPT fits because the question is "set A minus set B": A = movies a student rated,
 -- B = movies a programmer rated. UNION would give A or B, INTERSECT would give A and B.

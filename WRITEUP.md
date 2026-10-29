@@ -72,7 +72,7 @@ One query per claim, in `sql/queries/check_*.sql`. All three claims hold.
 
 ## Step 5 – Answer questions in SQL
 
-Each query is in `sql/queries/`, with the predicted and actual row counts in a comment at the top. `make queries` runs them all. The predicted counts are TODO until Sandeep writes his guesses.
+Each query is in `sql/queries/`, with the predicted and actual row counts in a comment at the top. `make queries` runs them all. The predicted counts were drafted with AI after the queries had been run, so they are not blind guesses; they record the reasoning for each expected count.
 
 - **Q1** returns 10 rows. Star Wars (1977) is first with 583 ratings. I used `RANK()` so that movies tied with 10th place would all be kept, but 10th place (429) is not tied.
 - **Q2** returns 7 rows out of 21 occupations. Educators rate highest (3.671) and students lowest (3.515). The raters condition goes in `HAVING` because it is about a whole group, and `WHERE` runs before the groups exist.
