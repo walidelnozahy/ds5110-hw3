@@ -2,6 +2,34 @@
 
 ## Step 0 – Describe the raw data
 
+`src/describe.py` prints everything below and saves the two charts to `figures/`.
+
+| File | Size | One row is | First row |
+| --- | --- | --- | --- |
+| `u.user` | 943 rows, 5 columns | one user | `1\|24\|M\|technician\|85711` |
+| `u.item` | 1,682 rows, 24 columns | one movie | `1\|Toy Story (1995)\|01-Jan-1995\|\|http://us.imdb.com/...\|0\|0\|0\|1\|1\|1\|0...` |
+| `u.data` | 100,000 rows, 4 columns | one rating, by one user of one movie | `196  242  3  881250949` |
+
+None of the files has a header row. `u.user` and `u.item` are separated by `|`, and `u.data` by tabs.
+
+**Is it tidy?**
+- `u.user` and `u.data` are tidy: one row per observation, one column per variable.
+- `u.item` is not. The last 19 columns (`unknown`, `Action`, ... `Western`) are all values of one variable, the genre, spread over 19 yes/no columns. A movie can have several. This is why `movie_genres` has one row per movie and genre.
+- `u.data` has no repeated (user, movie) pair, so each user rated each movie at most once.
+
+**What the README leaves out**
+- It says every file is "tab separated", but `u.user` and `u.item` use `|`.
+- `u.item` is not UTF-8. Titles with accents only read correctly as latin-1.
+- The "video release date" column is empty in all 1,682 rows.
+- One movie (id 267) is named `unknown` and has no release date and no IMDb URL. Two more movies have no IMDb URL.
+- 36 movies share a title with another id (for example "Body Snatchers (1993)" is ids 573 and 670), so the title can't identify a movie.
+- 18 of the 943 zip codes are not 5 digits (for example `T8H1N`, a Canadian postal code), so `zip` has to be text.
+- The README says the data starts on Sept 19, 1997. The first timestamp is 1997-09-20 03:05 UTC, so the README is probably using US time. The last is 1998-04-22 23:10 UTC.
+
+**Chart 1: `figures/ratings_by_score.png`.** Ratings lean positive: 4 is the most common score (34,174 ratings) and 3 is next (27,145), while 1 is the rarest (6,110). Nobody gave a half score.
+
+**Chart 2: `figures/ratings_per_user.png`.** Activity is very uneven. The README guarantees at least 20 ratings per user, and the median user gave 65, but the most active gave 737, so the histogram has a long right tail.
+
 ## Step 1 – Acquire the data reproducibly
 
 `src/download.py` downloads `ml-100k.zip` from GroupLens and unzips it into `raw/`. `make download` runs it only if the data isn't there yet.
