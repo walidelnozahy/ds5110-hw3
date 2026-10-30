@@ -12,7 +12,7 @@ WITH movie_stats AS (
     FROM movies m
     JOIN ratings r ON m.movie_id = r.movie_id
     GROUP BY m.movie_id, m.title
-    HAVING COUNT(r.rating) >= 20
+    HAVING COUNT(r.rating) >= 30
 ),
 genre_stats AS (
     -- Step 2: Calculate overall mean rating per genre across all associated ratings
