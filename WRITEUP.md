@@ -113,6 +113,18 @@ Each query is in `sql/queries/`, with the predicted and actual row counts in a c
 
 ## Step 7 – Missing values in SQL and in pandas
 
+We analyzed how missing values are represented and evaluated across SQLite and pandas using movie #267 (`unknown`), which has an empty release date and URL.
+
+**(a) SQL three-valued logic (`sql/queries/step7_nulls.sql`).**
+SQL uses three-valued logic where comparisons evaluate to `TRUE`, `FALSE`, or `UNKNOWN`. Comparing any value to `NULL` with standard operators (`= NULL` or `!= NULL`) evaluates to `UNKNOWN`, which SQLite filters out in a `WHERE` clause. Both queries return 0 rows for movie 267. Testing for nullness in SQL requires `IS NULL` or `IS NOT NULL`. For aggregations, `COUNT(*)` counts total rows (1,682), whereas `COUNT(column)` ignores `NULL`s, yielding 1,681 for `COUNT(release_date)`.
+
+**(b) Pandas representation (`src/step7_missing_pandas.py`).**
+When pandas reads `NULL` strings from SQLite, it casts them to `NaN` (or `None`). Comparing with `== None` returns 0 matches because `np.nan == np.nan` evaluates to `False`. Locating missing rows requires `.isna()`, which correctly finds the 1 missing row for movie 267. Similarly, `Series.count()` ignores missing values (1,681), while `Series.size` or `len(df)` returns the full row count (1,682).
+
+**(c) Key differences.**
+1. **Types**: SQL maintains strict column datatypes even when values are `NULL`. In standard pandas, integer columns with missing values are coerced to `float64` unless using nullable integer extension types (`Int64`).
+2. **Boolean evaluation**: SQL propagates `UNKNOWN` through boolean logic (`UNKNOWN AND FALSE` is `FALSE`, but `UNKNOWN OR TRUE` is `TRUE`). Pandas uses standard two-valued boolean indexing, where missing values in conditional masks evaluate as `False`.
+
 **(d) Q6 again in pandas.** `src/q6_pandas.py` reads the ratings joined to users with `read_sql` and takes the difference of two Python sets. It finds 1,339 movies rated by a student, 1,133 by a programmer, and 268 for students but no programmer, the same as the SQL. The counts match, so there is nothing to explain.
 
 ## Step 8 – Where SQL earns its place
