@@ -157,6 +157,41 @@ We chose the `WITH` (CTE) version because it reads top-to-bottom in the order th
 
 ## Step 7 – Missing values in SQL and in pandas
 
+**(a) Where `NULL` appears and what it means (`sql/queries/step7_nulls.sql`).**
+Every column across `users`, `ratings`, `genres`, `occupations`, and `movie_genres` is `NOT NULL`. Only two columns in `movies` contain `NULL`:
+- `movies.release_date`: 1 row (movie 267, `unknown`). The release date is unknown.
+- `movies.imdb_url`: 3 rows (movies 267, 1358, and 1359). The movie has no IMDb link.
+
+**(b) Three-valued logic and the `NOT IN` trap (`sql/queries/step7_nulls.sql`).**
+SQL uses three-valued logic (`TRUE`, `FALSE`, `UNKNOWN`). Comparing anything to `NULL` with `=` or `!=` yields `UNKNOWN`, and `WHERE` only keeps `TRUE` rows. When a `NOT IN` subquery returns even one `NULL`, the whole query returns 0 rows:
+```sql
+-- NOT IN: 0 rows, because the list contains movie 267's NULL date
+SELECT COUNT(*) FROM movies
+WHERE release_date NOT IN (SELECT release_date FROM movies WHERE imdb_url IS NULL);
+```
+Because the list includes `NULL`, checking `release_date != NULL` evaluates to `UNKNOWN` for every row.
+
+Replacing `NOT IN` with `NOT EXISTS` fixes it and returns the real answer (1,680 rows):
+```sql
+-- NOT EXISTS: 1,680 rows, the real answer
+SELECT COUNT(*) FROM movies m
+WHERE NOT EXISTS (SELECT 1 FROM movies x
+                  WHERE x.imdb_url IS NULL AND x.release_date = m.release_date);
+```
+Inside `EXISTS`, `x.release_date = m.release_date` evaluates to `UNKNOWN` on movie 267, so the subquery finds no match and `NOT EXISTS` succeeds.
+
+**(c) Types and missing counts from SQL to pandas (`src/step7_missing_pandas.py`).**
+Reading `movies` into pandas with `read_sql` turns SQL `NULL` into `NaN`/`None` and keeps the same missing counts:
+
+| Column | SQLite Type | SQLite `NULL` Count | Pandas `dtype` | Pandas `isna().sum()` |
+| --- | --- | --- | --- | --- |
+| `movie_id` | `INTEGER` | 0 | `int64` | 0 |
+| `title` | `TEXT NOT NULL` | 0 | `str` | 0 |
+| `release_date` | `TEXT` | 1 | `str` | 1 |
+| `imdb_url` | `TEXT` | 3 | `str` | 3 |
+
+Because `movie_id` has no nulls, pandas keeps it as `int64` (an integer column with nulls would be cast to `float64` to hold `NaN`). Text columns become `str`, with `isna().sum()` matching SQL's null counts.
+
 **(d) Q6 again in pandas.** `src/q6_pandas.py` reads the ratings joined to users with `read_sql` and takes the difference of two Python sets. It finds 1,339 movies rated by a student, 1,133 by a programmer, and 268 for students but no programmer, the same as the SQL. The counts match, so there is nothing to explain.
 
 ## Step 8 – Where SQL earns its place
