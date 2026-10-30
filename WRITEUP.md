@@ -111,6 +111,50 @@ Each query is in `sql/queries/`, with the predicted and actual row counts in a c
 
 ## Step 6 – Build a query from named steps
 
+File: `sql/queries/step6_genre_relative_ratings.sql`
+
+**(a) The named steps and row counts.**
+We found movies that outperform their genre average by at least 0.5 stars (among movies with >= 30 ratings) using four steps:
+
+| Step | Name | Row Count | What it does |
+| --- | --- | --- | --- |
+| 1 | `movie_stats` | 806 | Mean rating and rating count per movie, filtered to `HAVING COUNT(*) >= 30`. |
+| 2 | `genre_stats` | 19 | Overall mean rating for each of the 19 genres. |
+| 3 | `movie_genre_comparison` | 1,610 | Joins qualifying movies to each of their genres and computes `diff_from_genre = movie_mean - genre_mean`. |
+| 4 | Final `SELECT` | 147 | Filters to `diff_from_genre >= 0.5` (147 movie-genre pairs across 96 different movies). |
+
+*A Close Shave (1995)* has the largest gap, beating the Comedy average (3.394) by 1.097 stars (4.491 across 112 ratings).
+
+**(b) Comparing against each genre vs. one genre.**
+A movie can belong to several genres, so we had to decide whether to compare a movie with each of its genres or collapse them into one. We chose to compare each movie with **each of its genres** separately:
+- `u.item` does not mark a "primary" genre—all genre flags have equal weight, so picking one would be arbitrary.
+- Genre averages vary (Film-Noir is 3.922 while Horror is 3.290). A movie tagged as both Drama (3.687) and Comedy (3.394) might beat the Comedy mean by 0.5 stars without beating Drama by 0.5. Keeping one row per `(movie, genre)` pair shows specifically which genre benchmark the movie cleared.
+
+**(c) CTEs vs. nested subqueries.**
+Here is the same query written with nested subqueries in `FROM`:
+```sql
+SELECT
+    ms.movie_id, ms.title, mg.genre,
+    ROUND(ms.movie_mean, 3) AS movie_mean,
+    ROUND(gs.genre_mean, 3) AS genre_mean,
+    ROUND(ms.movie_mean - gs.genre_mean, 3) AS diff_from_genre,
+    ms.num_ratings
+FROM (
+    SELECT m.movie_id, m.title, COUNT(r.rating) AS num_ratings, AVG(r.rating) AS movie_mean
+    FROM movies m JOIN ratings r ON m.movie_id = r.movie_id
+    GROUP BY m.movie_id, m.title HAVING COUNT(r.rating) >= 30
+) ms
+JOIN movie_genres mg ON ms.movie_id = mg.movie_id
+JOIN (
+    SELECT mg2.genre, AVG(r2.rating) AS genre_mean
+    FROM movie_genres mg2 JOIN ratings r2 ON mg2.movie_id = r2.movie_id
+    GROUP BY mg2.genre
+) gs ON mg.genre = gs.genre
+WHERE ROUND(ms.movie_mean - gs.genre_mean, 3) >= 0.5
+ORDER BY diff_from_genre DESC, ms.title ASC;
+```
+We chose the `WITH` (CTE) version because it reads top-to-bottom in the order the data is transformed (`movie_stats` -> `genre_stats` -> `movie_genre_comparison` -> filter). The nested version has to be read from the inside out, repeats the `ROUND(ms.movie_mean - gs.genre_mean, 3)` calculation in both `SELECT` and `WHERE`, and is harder to test step-by-step.
+
 ## Step 7 – Missing values in SQL and in pandas
 
 **(d) Q6 again in pandas.** `src/q6_pandas.py` reads the ratings joined to users with `read_sql` and takes the difference of two Python sets. It finds 1,339 movies rated by a student, 1,133 by a programmer, and 268 for students but no programmer, the same as the SQL. The counts match, so there is nothing to explain.
