@@ -113,17 +113,40 @@ Each query is in `sql/queries/`, with the predicted and actual row counts in a c
 
 ## Step 7 – Missing values in SQL and in pandas
 
-We analyzed how missing values are represented and evaluated across SQLite and pandas using movie #267 (`unknown`), which has an empty release date and URL.
+**(a) Where `NULL` appears and what it means (`sql/queries/step7_nulls.sql`).**
+Every column across `users`, `ratings`, `genres`, `occupations`, and `movie_genres` is `NOT NULL`. Only two columns in `movies` contain `NULL`:
+- `movies.release_date`: 1 row (movie 267, `unknown`). The release date is unknown.
+- `movies.imdb_url`: 3 rows (movies 267, 1358, and 1359). The movie has no IMDb link.
 
-**(a) SQL three-valued logic (`sql/queries/step7_nulls.sql`).**
-SQL uses three-valued logic where comparisons evaluate to `TRUE`, `FALSE`, or `UNKNOWN`. Comparing any value to `NULL` with standard operators (`= NULL` or `!= NULL`) evaluates to `UNKNOWN`, which SQLite filters out in a `WHERE` clause. Both queries return 0 rows for movie 267. Testing for nullness in SQL requires `IS NULL` or `IS NOT NULL`. For aggregations, `COUNT(*)` counts total rows (1,682), whereas `COUNT(column)` ignores `NULL`s, yielding 1,681 for `COUNT(release_date)`.
+**(b) Three-valued logic and the `NOT IN` trap (`sql/queries/step7_nulls.sql`).**
+SQL uses three-valued logic (`TRUE`, `FALSE`, `UNKNOWN`). Comparing anything to `NULL` with `=` or `!=` yields `UNKNOWN`, and `WHERE` only keeps `TRUE` rows. When a `NOT IN` subquery returns even one `NULL`, the whole query returns 0 rows:
+```sql
+-- NOT IN: 0 rows, because the list contains movie 267's NULL date
+SELECT COUNT(*) FROM movies
+WHERE release_date NOT IN (SELECT release_date FROM movies WHERE imdb_url IS NULL);
+```
+Because the list includes `NULL`, checking `release_date != NULL` evaluates to `UNKNOWN` for every row.
 
-**(b) Pandas representation (`src/step7_missing_pandas.py`).**
-When pandas reads `NULL` strings from SQLite, it casts them to `NaN` (or `None`). Comparing with `== None` returns 0 matches because `np.nan == np.nan` evaluates to `False`. Locating missing rows requires `.isna()`, which correctly finds the 1 missing row for movie 267. Similarly, `Series.count()` ignores missing values (1,681), while `Series.size` or `len(df)` returns the full row count (1,682).
+Replacing `NOT IN` with `NOT EXISTS` fixes it and returns the real answer (1,680 rows):
+```sql
+-- NOT EXISTS: 1,680 rows, the real answer
+SELECT COUNT(*) FROM movies m
+WHERE NOT EXISTS (SELECT 1 FROM movies x
+                  WHERE x.imdb_url IS NULL AND x.release_date = m.release_date);
+```
+Inside `EXISTS`, `x.release_date = m.release_date` evaluates to `UNKNOWN` on movie 267, so the subquery finds no match and `NOT EXISTS` succeeds.
 
-**(c) Key differences.**
-1. **Types**: SQL maintains strict column datatypes even when values are `NULL`. In standard pandas, integer columns with missing values are coerced to `float64` unless using nullable integer extension types (`Int64`).
-2. **Boolean evaluation**: SQL propagates `UNKNOWN` through boolean logic (`UNKNOWN AND FALSE` is `FALSE`, but `UNKNOWN OR TRUE` is `TRUE`). Pandas uses standard two-valued boolean indexing, where missing values in conditional masks evaluate as `False`.
+**(c) Types and missing counts from SQL to pandas (`src/step7_missing_pandas.py`).**
+Reading `movies` into pandas with `read_sql` turns SQL `NULL` into `NaN`/`None` and keeps the same missing counts:
+
+| Column | SQLite Type | SQLite `NULL` Count | Pandas `dtype` | Pandas `isna().sum()` |
+| --- | --- | --- | --- | --- |
+| `movie_id` | `INTEGER` | 0 | `int64` | 0 |
+| `title` | `TEXT NOT NULL` | 0 | `str` | 0 |
+| `release_date` | `TEXT` | 1 | `str` | 1 |
+| `imdb_url` | `TEXT` | 3 | `str` | 3 |
+
+Because `movie_id` has no nulls, pandas keeps it as `int64` (an integer column with nulls would be cast to `float64` to hold `NaN`). Text columns become `str`, with `isna().sum()` matching SQL's null counts.
 
 **(d) Q6 again in pandas.** `src/q6_pandas.py` reads the ratings joined to users with `read_sql` and takes the difference of two Python sets. It finds 1,339 movies rated by a student, 1,133 by a programmer, and 268 for students but no programmer, the same as the SQL. The counts match, so there is nothing to explain.
 

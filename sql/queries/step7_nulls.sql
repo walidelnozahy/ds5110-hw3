@@ -1,24 +1,30 @@
--- Step 7a: Three-valued logic and NULL behavior in SQLite.
--- Demonstrates comparisons (=, !=, IS) and aggregations (COUNT(*), COUNT(col), AVG(col)).
-
--- 1. Three-valued logic: equality and inequality against NULL both yield UNKNOWN (falsy in WHERE).
--- Notice that both queries return 0 rows for movie 267.
-SELECT movie_id, title, release_date
-FROM movies
-WHERE release_date = NULL;
-
-SELECT movie_id, title, release_date
-FROM movies
-WHERE release_date != NULL;
-
--- 2. Only IS NULL and IS NOT NULL properly handle NULL in boolean evaluation.
-SELECT movie_id, title, release_date
-FROM movies
-WHERE release_date IS NULL;
-
--- 3. Aggregations: COUNT(*) counts rows; COUNT(column) ignores NULLs; AVG ignores NULLs.
+-- Step 7a: Count NULL values per nullable column in the database.
+-- Every column in users, ratings, genres, occupations, and movie_genres is NOT NULL.
+-- Only movies.release_date (1 row: movie 267) and movies.imdb_url (3 rows: 267, 1358, 1359) allow NULL.
 SELECT
-    COUNT(*) AS total_movies,
-    COUNT(release_date) AS movies_with_release_date,
-    COUNT(*) - COUNT(release_date) AS null_release_dates
+    COUNT(*) - COUNT(movie_id)     AS movie_id_nulls,
+    COUNT(*) - COUNT(title)        AS title_nulls,
+    COUNT(*) - COUNT(release_date) AS release_date_nulls,
+    COUNT(*) - COUNT(imdb_url)     AS imdb_url_nulls
 FROM movies;
+
+-- Inspect the specific rows with NULLs
+SELECT movie_id, title, release_date, imdb_url
+FROM movies
+WHERE release_date IS NULL OR imdb_url IS NULL;
+
+-- Step 7b: Three-valued logic and the NOT IN trap vs. NOT EXISTS fix.
+-- 1. NOT IN trap: returns 0 rows because movie 267's NULL release_date makes x != NULL evaluate to UNKNOWN.
+SELECT COUNT(*) AS not_in_count
+FROM movies
+WHERE release_date NOT IN (
+    SELECT release_date FROM movies WHERE imdb_url IS NULL
+);
+
+-- 2. NOT EXISTS fix: returns 1,680 rows, the real answer.
+SELECT COUNT(*) AS not_exists_count
+FROM movies m
+WHERE NOT EXISTS (
+    SELECT 1 FROM movies x
+    WHERE x.imdb_url IS NULL AND x.release_date = m.release_date
+);
