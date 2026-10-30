@@ -111,6 +111,20 @@ Each query is in `sql/queries/`, with the predicted and actual row counts in a c
 
 ## Step 6 – Build a query from named steps
 
+File: `sql/queries/step6_genre_relative_ratings.sql`
+
+
+- **Predicted rows**: 100 to 200 movie-genre pairs.
+- **Actual rows**: 151 pairs.
+- **Explanation**:
+  Instead of deeply nesting subqueries inside `FROM` and `WHERE`, we used CTEs to build a clean four-step pipeline:
+    1. `movie_stats`: Aggregates ratings by movie, calculating `num_ratings` and `movie_mean`. It filters `HAVING COUNT(r.rating) >= 20` to exclude sample-size noise.
+    2. `genre_stats`: Gets `genre_mean` across all ratings associated with that genre through `movie_genres`.
+    3. `movie_genre_comparison`: Joins qualifying movies with their genre baselines and computes `diff_from_genre = movie_mean - genre_mean`.
+    4. Final `SELECT`: Filters for `diff_from_genre >= 0.5` and orders by the highest margin.
+
+Nick Park's *A Close Shave (1995)* ranks highest above its category, over the Comedy mean (3.394) by 1.097 stars with a 4.491 average across 112 ratings. CTEs make each step easy to inspect and debug individually without having to untangle subqueries.
+
 ## Step 7 – Missing values in SQL and in pandas
 
 **(d) Q6 again in pandas.** `src/q6_pandas.py` reads the ratings joined to users with `read_sql` and takes the difference of two Python sets. It finds 1,339 movies rated by a student, 1,133 by a programmer, and 268 for students but no programmer, the same as the SQL. The counts match, so there is nothing to explain.
