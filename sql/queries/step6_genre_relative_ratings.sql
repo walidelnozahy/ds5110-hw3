@@ -1,13 +1,13 @@
--- Step 6: Movies rated >= 0.5 stars above their genre's overall average rating (20+ ratings).
+-- Step 6: Movies rated >= 0.5 stars above their genre's overall average rating (30+ ratings).
 -- Predicted rows: 100 to 200 movie-genre pairs.
--- Row counts after each step (20+ ratings):
---   movie_stats             939   movies with 20+ ratings
+-- Row counts after each step (30+ ratings):
+--   movie_stats             806   movies with 30+ ratings
 --   genre_stats              19   one row per genre
---   movie_genre_comparison 1837   each movie paired with each of its genres (~2 genres per movie)
---   final SELECT            151   pairs at least 0.5 above their genre = 99 different movies
+--   movie_genre_comparison 1610   each movie paired with each of its genres (~2 genres per movie)
+--   final SELECT            147   pairs at least 0.5 above their genre = 96 different movies
 
 WITH movie_stats AS (
-    -- Step 1: Calculate count and mean rating for every movie with >= 20 ratings
+    -- Step 1: Calculate count and mean rating for every movie with >= 30 ratings
     SELECT 
         m.movie_id,
         m.title,
@@ -67,7 +67,7 @@ ORDER BY diff_from_genre DESC, title ASC;
 --     SELECT m.movie_id, m.title, COUNT(r.rating) AS num_ratings, AVG(r.rating) AS movie_mean
 --     FROM movies m JOIN ratings r ON m.movie_id = r.movie_id
 --     GROUP BY m.movie_id, m.title
---     HAVING COUNT(r.rating) >= 20
+--     HAVING COUNT(r.rating) >= 30
 -- ) ms
 -- JOIN movie_genres mg ON ms.movie_id = mg.movie_id
 -- JOIN (

@@ -114,14 +114,14 @@ Each query is in `sql/queries/`, with the predicted and actual row counts in a c
 File: `sql/queries/step6_genre_relative_ratings.sql`
 
 **(a) The named steps and row counts.**
-We found movies that outperform their genre average by at least 0.5 stars (among movies with >= 20 ratings) using four steps:
+We found movies that outperform their genre average by at least 0.5 stars (among movies with >= 30 ratings) using four steps:
 
 | Step | Name | Row Count | What it does |
 | --- | --- | --- | --- |
-| 1 | `movie_stats` | 939 | Mean rating and rating count per movie, filtered to `HAVING COUNT(*) >= 20`. |
+| 1 | `movie_stats` | 806 | Mean rating and rating count per movie, filtered to `HAVING COUNT(*) >= 30`. |
 | 2 | `genre_stats` | 19 | Overall mean rating for each of the 19 genres. |
-| 3 | `movie_genre_comparison` | 1,837 | Joins qualifying movies to each of their genres and computes `diff_from_genre = movie_mean - genre_mean`. |
-| 4 | Final `SELECT` | 151 | Filters to `diff_from_genre >= 0.5` (151 movie-genre pairs across 99 different movies). |
+| 3 | `movie_genre_comparison` | 1,610 | Joins qualifying movies to each of their genres and computes `diff_from_genre = movie_mean - genre_mean`. |
+| 4 | Final `SELECT` | 147 | Filters to `diff_from_genre >= 0.5` (147 movie-genre pairs across 96 different movies). |
 
 *A Close Shave (1995)* has the largest gap, beating the Comedy average (3.394) by 1.097 stars (4.491 across 112 ratings).
 
@@ -142,7 +142,7 @@ SELECT
 FROM (
     SELECT m.movie_id, m.title, COUNT(r.rating) AS num_ratings, AVG(r.rating) AS movie_mean
     FROM movies m JOIN ratings r ON m.movie_id = r.movie_id
-    GROUP BY m.movie_id, m.title HAVING COUNT(r.rating) >= 20
+    GROUP BY m.movie_id, m.title HAVING COUNT(r.rating) >= 30
 ) ms
 JOIN movie_genres mg ON ms.movie_id = mg.movie_id
 JOIN (
