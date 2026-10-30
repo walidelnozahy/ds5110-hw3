@@ -30,7 +30,7 @@ CREATE TABLE users (
 CREATE TABLE movies (
   movie_id     INTEGER PRIMARY KEY CHECK (movie_id >= 1),        -- README: numbered from 1
   title        TEXT NOT NULL,                                    -- not UNIQUE: 18 titles repeat
-  release_date TEXT CHECK (release_date = date(release_date)),   -- ISO date; NULL allowed (movie 267)
+  release_date TEXT CHECK (release_date IS date(release_date)),  -- ISO date; NULL allowed (movie 267). IS, not =, so a bad date is refused
   imdb_url     TEXT
 ) STRICT;
 
