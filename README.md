@@ -69,3 +69,4 @@ PK is the column that identifies each row. FK is a column that points to a row i
 
 - **Walid:** used Claude to draft the download script, the Makefile and this README, and to check the schema against the raw data. I reviewed every line.
 - **Sandeep:** used Claude to draft the SQL queries, the pandas check, `src/describe.py` and the matching write-up sections, and to run them. The predicted row counts in the query files were written after the queries had run. I can explain every query.
+- **Max** Gemini used to help brainstorm the date parsing in `load.py`, outline the CTE in Step 6, and draft the null check examples in Step 7. All scripts and queries were tested and verified locally.
