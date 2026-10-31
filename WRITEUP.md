@@ -70,23 +70,23 @@ A rule only looks at one row at a time, so some promises can't be checked this w
 **(b) The refused rows.** Any row that broke a rule was caught by SQLite and logged to `output/rejected.csv` with the table name, the raw line, and the error. Our final load produced 0 refused rows, because `load.py` fixes the dates before inserting them (see (c)). Without that fix, the schema refuses 1,681 movies (every movie except 267) for a bad date. Then it refuses 99,991 ratings, because the movies they point to are missing.
 
 **(c) Decisions made in code.**
-- **Dates to ISO format**: In `schema.sql`, `movies.release_date` checks that `release_date IS date(release_date)`. We use `IS`, not `=`: for a bad date, `date()` gives NULL, and SQLite lets a row through when a check comes out NULL, so with `=` a bad date would slip in. The raw dates in `u.item` are `DD-Mon-YYYY` (like `01-Jan-1995`). Dropping 1,681 movies over date formatting would wreck the dataset, and editing the raw text files is forbidden. Instead, `load.py` converts valid dates into ISO strings (`YYYY-MM-DD`) in Python before inserting them.
-- **Blank values to NULL**: In `u.item`, blank video release dates, IMDb URLs, and movie 267's missing release date were read as `None` (SQL `NULL`). The schema allows `NULL` for these columns, so movie 267 was inserted without being dropped.
-- **Zip codes kept as text**: Users with Canadian postal codes (like `M4V1L5`) inserted cleanly because `zip` was set as `TEXT`, not `INTEGER`.
+- **Dates to ISO format**: In `schema.sql`, `movies.release_date` checks that `release_date IS date(release_date)`. We use `IS`, not `=`: for a bad date, `date()` gives NULL, and SQLite lets a row through when a check comes out NULL, so with `=` a bad date would slip in. The raw dates in `u.item` look like `01-Jan-1995`. Dropping 1,681 movies just because of the date format would lose almost the whole dataset, and we can't edit the raw files. So `load.py` converts each date to `YYYY-MM-DD` in Python before inserting it.
+- **Blank values to NULL**: In `u.item`, blank IMDb URLs and movie 267's missing release date were read as `None` (SQL `NULL`). The schema allows `NULL` for these columns, so movie 267 was inserted without being dropped. The video release date is blank for every movie, so we don't load it at all.
+- **Zip codes kept as text**: Users with Canadian postal codes (like `T8H1N`) inserted cleanly because `zip` was set as `TEXT`, not `INTEGER`.
 - **Order of operations**: We loaded `genres` and `occupations` first, then `users` and `movies`, and finally `movie_genres` and `ratings`. This ensured foreign keys always found their parent rows.
 
-**(d) Makefile target.** We wired up the `Makefile` so that `make` depends on `data/movielens.db`. If the database is missing, it runs `src/download.py` if needed, then `src/load.py raw/ml-100k data/movielens.db`.
+**(d) Makefile target.** Running `make` downloads the data if it's missing (`src/download.py`), rebuilds the database from scratch (`src/load.py raw/ml-100k data/movielens.db`), and saves the query results. `make clean` deletes the database and the outputs so you can start again.
 
 **(e) Expected vs actual counts.**
 
 | Table | Expected | Actual | Refused | Why there's a difference |
 | --- | --- | --- | --- | --- |
-| `occupations` | 21 | 21 | 0 | Exact match. |
-| `genres` | 19 | 19 | 0 | Exact match. |
-| `users` | 943 | 943 | 0 | Exact match; `zip TEXT` handles non-digits. |
-| `movies` | 1,682 | 1,682 | 0 | Exact match; dates were normalized in code. |
-| `movie_genres` | > 2,000 | 2,893 | 0 | Exact match; captured all multi-genre flags. |
-| `ratings` | 100,000 | 100,000 | 0 | Exact match; all timestamps were valid. |
+| `occupations` | 21 | 21 | 0 | Same. |
+| `genres` | 19 | 19 | 0 | Same. |
+| `users` | 943 | 943 | 0 | Same. We expected the Canadian zips to be refused, but `zip` is `TEXT`, so they fit. |
+| `movies` | 1,682 | 1,682 | 0 | Same. We expected the dates and movie 267 to be refused, but `load.py` converts the dates and the schema allows a missing date. |
+| `movie_genres` | > 2,000 | 2,893 | 0 | Within our guess: on average a movie has about 1.7 genres. |
+| `ratings` | 100,000 | 100,000 | 0 | Same. Every timestamp falls inside the README's dates. |
 
 ## Step 4 – Check the README's claims
 
@@ -100,9 +100,9 @@ One query per claim, in `sql/queries/check_*.sql`. All three claims hold.
 
 ## Step 5 – Answer questions in SQL
 
-Each query is in `sql/queries/`, with the predicted and actual row counts in a comment at the top. `make queries` runs them all. The predicted counts were drafted with AI after the queries had been run, so they are not blind guesses; they record the reasoning for each expected count.
+Each query is in `sql/queries/`, with the predicted and actual row counts in a comment at the top. `make` runs them all and saves the results in `output/query_results.txt`. The predicted counts were drafted with AI after the queries had been run, so they are not blind guesses; they record the reasoning for each expected count.
 
-- **Q1** returns 10 rows. Star Wars (1977) is first with 583 ratings. I used `RANK()` so that movies tied with 10th place would all be kept, but 10th place (429) is not tied.
+- **Q1** returns 10 rows. Star Wars (1977) is first with 583 ratings. To handle ties on purpose, we used `RANK()`: movies with the same count get the same rank, so every movie tied with 10th place is kept. `ROW_NUMBER()` or a plain `LIMIT 10` would cut a tie at random. Here 10th place (429) isn't tied, so we get exactly 10. (The top 20 the same way gives 21 rows, because 20th place is tied.)
 - **Q2** returns 7 rows out of 21 occupations. Educators rate highest (3.671) and students lowest (3.515). The raters condition goes in `HAVING` because it is about a whole group, and `WHERE` runs before the groups exist.
 - **Q3** is 18 users, all with Canadian-style codes like `T8H1N`. With `zip` as `INTEGER`, a STRICT table would refuse those rows, so the answer would be 0 and the 18 users would be missing.
 - **Q4** has 19 rows (18 genres plus `unknown`). The genre counts add up to 212,595, which is 112,595 more than 100,000, because a rating of a multi-genre movie is counted once per genre. Drama is the biggest genre (39,895 ratings) and Film-Noir has the highest mean (3.922).
@@ -114,12 +114,12 @@ Each query is in `sql/queries/`, with the predicted and actual row counts in a c
 File: `sql/queries/step6_genre_relative_ratings.sql`
 
 **(a) The named steps and row counts.**
-We found movies that outperform their genre average by at least 0.5 stars (among movies with >= 30 ratings) using four steps:
+We found the movies that beat their genre's average by at least 0.5 stars (counting only movies with 30 or more ratings) in four steps:
 
 | Step | Name | Row Count | What it does |
 | --- | --- | --- | --- |
 | 1 | `movie_stats` | 806 | Mean rating and rating count per movie, filtered to `HAVING COUNT(*) >= 30`. |
-| 2 | `genre_stats` | 19 | Overall mean rating for each of the 19 genres. |
+| 2 | `genre_stats` | 19 | Mean rating for each of the 19 genres. A rating of a movie with three genres counts once in each of those three genre means. |
 | 3 | `movie_genre_comparison` | 1,610 | Joins qualifying movies to each of their genres and computes `diff_from_genre = movie_mean - genre_mean`. |
 | 4 | Final `SELECT` | 147 | Filters to `diff_from_genre >= 0.5` (147 movie-genre pairs across 96 different movies). |
 
@@ -127,8 +127,8 @@ We found movies that outperform their genre average by at least 0.5 stars (among
 
 **(b) Comparing against each genre vs. one genre.**
 A movie can belong to several genres, so we had to decide whether to compare a movie with each of its genres or collapse them into one. We chose to compare each movie with **each of its genres** separately:
-- `u.item` does not mark a "primary" genre—all genre flags have equal weight, so picking one would be arbitrary.
-- Genre averages vary (Film-Noir is 3.922 while Horror is 3.290). A movie tagged as both Drama (3.687) and Comedy (3.394) might beat the Comedy mean by 0.5 stars without beating Drama by 0.5. Keeping one row per `(movie, genre)` pair shows specifically which genre benchmark the movie cleared.
+- `u.item` doesn't mark a main genre. All the genre flags count the same, so picking one would be arbitrary.
+- Genre averages differ (Film-Noir is 3.922, Horror is 3.290). A movie that is both Drama (3.687) and Comedy (3.394) might beat the Comedy average by 0.5 without beating Drama. One row per (movie, genre) pair shows exactly which genre the movie beat.
 
 **(c) CTEs vs. nested subqueries.**
 Here is the same query written with nested subqueries in `FROM`:
@@ -195,3 +195,5 @@ Because `movie_id` has no nulls, pandas keeps it as `int64` (an integer column w
 **(d) Q6 again in pandas.** `src/q6_pandas.py` reads the ratings joined to users with `read_sql` and takes the difference of two Python sets. It finds 1,339 movies rated by a student, 1,133 by a programmer, and 268 for students but no programmer, the same as the SQL. The counts match, so there is nothing to explain.
 
 ## Step 8 – Where SQL earns its place
+
+Step 6 was the most awkward to think about in pandas. The steps are the same, but in pandas each one is a separate DataFrame: a `groupby` for the movie means, a `merge` with the genres *before* you can even group by genre, then two more merges to pair each movie with its genres and their means. You have to keep track of which DataFrame holds which columns, and remember `reset_index` after each `groupby`. In SQL, each step is a named `WITH` block that reads top to bottom, the 30-ratings rule sits right next to its `GROUP BY` as a `HAVING`, and we could check every step just by counting its rows. Not every question was easier in SQL, though: Q6 was just as simple in pandas, with two Python sets and a minus.

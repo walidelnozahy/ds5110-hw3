@@ -1,0 +1,512 @@
+== sql/queries/check_1_counts.sql
+ratings  users  movies  users_who_rated  movies_rated
+-------  -----  ------  ---------------  ------------
+100000   943    1682    943              1682        
+== sql/queries/check_2_consecutive_ids.sql
+tbl     min_id  max_id  n     gaps
+------  ------  ------  ----  ----
+users   1       943     943   0   
+movies  1       1682    1682  0   
+== sql/queries/check_3_min_20_ratings.sql
+fewest_ratings  fewer_than_20
+--------------  -------------
+20              0            
+== sql/queries/q1_top_ten_movies.sql
+rnk  title                          n_ratings
+---  -----------------------------  ---------
+1    Star Wars (1977)               583      
+2    Contact (1997)                 509      
+3    Fargo (1996)                   508      
+4    Return of the Jedi (1983)      507      
+5    Liar Liar (1997)               485      
+6    English Patient, The (1996)    481      
+7    Scream (1996)                  478      
+8    Toy Story (1995)               452      
+9    Air Force One (1997)           431      
+10   Independence Day (ID4) (1996)  429      
+== sql/queries/q2_mean_by_occupation.sql
+occupation     raters  mean_rating
+-------------  ------  -----------
+educator       95      3.671      
+administrator  79      3.636      
+programmer     66      3.568      
+librarian      51      3.561      
+other          105     3.552      
+engineer       67      3.541      
+student        196     3.515      
+== sql/queries/q3_zip_not_digit.sql
+users_with_non_digit_start
+--------------------------
+18                        
+== sql/queries/q4_genre_ratings.sql
+genre        n_ratings  mean_rating
+-----------  ---------  -----------
+Drama        39895      3.687      
+Comedy       29832      3.394      
+Action       25589      3.48       
+Thriller     21872      3.509      
+Romance      19461      3.622      
+Adventure    13753      3.504      
+Sci-Fi       12730      3.561      
+War          9398       3.816      
+Crime        8055       3.632      
+Children's   7182       3.353      
+Horror       5317       3.29       
+Mystery      5245       3.638      
+Musical      4954       3.521      
+Animation    3605       3.577      
+Western      1854       3.613      
+Film-Noir    1733       3.922      
+Fantasy      1352       3.215      
+Documentary  758        3.673      
+unknown      10         3.2        
+sum_of_genre_counts  real_ratings  extra 
+-------------------  ------------  ------
+212595               100000        112595
+== sql/queries/q5_ratings_per_month.sql
+month    n_ratings
+-------  ---------
+1997-09  6704     
+1997-10  10304    
+1997-11  23980    
+1997-12  11911    
+1998-01  14095    
+1998-02  10991    
+1998-03  12656    
+1998-04  9359     
+== sql/queries/q6_student_not_programmer.sql
+movie_id
+--------
+6       
+36      
+37      
+57      
+74      
+104     
+113     
+149     
+256     
+266     
+296     
+309     
+314     
+337     
+341     
+353     
+359     
+361     
+370     
+371     
+376     
+387     
+400     
+406     
+440     
+453     
+493     
+536     
+545     
+555     
+574     
+590     
+592     
+601     
+634     
+639     
+669     
+681     
+691     
+694     
+695     
+703     
+706     
+714     
+757     
+766     
+767     
+776     
+777     
+782     
+786     
+787     
+791     
+798     
+799     
+803     
+807     
+811     
+821     
+828     
+839     
+851     
+859     
+860     
+867     
+870     
+877     
+883     
+884     
+885     
+888     
+889     
+891     
+893     
+894     
+896     
+899     
+903     
+905     
+908     
+909     
+910     
+918     
+920     
+937     
+953     
+964     
+967     
+970     
+980     
+981     
+983     
+996     
+997     
+1002    
+1003    
+1005    
+1024    
+1026    
+1038    
+1043    
+1056    
+1058    
+1062    
+1068    
+1071    
+1077    
+1080    
+1081    
+1082    
+1083    
+1085    
+1092    
+1111    
+1116    
+1117    
+1127    
+1129    
+1131    
+1141    
+1143    
+1146    
+1148    
+1150    
+1152    
+1154    
+1155    
+1156    
+1157    
+1158    
+1167    
+1168    
+1171    
+1172    
+1175    
+1176    
+1177    
+1184    
+1187    
+1189    
+1192    
+1193    
+1194    
+1204    
+1211    
+1212    
+1213    
+1214    
+1227    
+1233    
+1237    
+1241    
+1243    
+1245    
+1246    
+1249    
+1252    
+1254    
+1270    
+1272    
+1273    
+1275    
+1276    
+1278    
+1281    
+1287    
+1289    
+1292    
+1294    
+1295    
+1296    
+1297    
+1298    
+1300    
+1301    
+1313    
+1315    
+1316    
+1317    
+1319    
+1324    
+1327    
+1330    
+1333    
+1337    
+1356    
+1357    
+1365    
+1367    
+1375    
+1377    
+1382    
+1383    
+1392    
+1393    
+1394    
+1395    
+1396    
+1400    
+1401    
+1405    
+1409    
+1416    
+1418    
+1421    
+1422    
+1423    
+1426    
+1429    
+1430    
+1431    
+1432    
+1433    
+1434    
+1441    
+1442    
+1459    
+1462    
+1464    
+1466    
+1467    
+1468    
+1469    
+1470    
+1471    
+1472    
+1475    
+1482    
+1502    
+1503    
+1504    
+1505    
+1508    
+1510    
+1511    
+1514    
+1516    
+1517    
+1519    
+1520    
+1521    
+1522    
+1523    
+1529    
+1534    
+1539    
+1540    
+1544    
+1545    
+1558    
+1594    
+1595    
+1596    
+1607    
+1609    
+1614    
+1615    
+1618    
+1620    
+1622    
+1623    
+1657    
+1664    
+1671    
+1677    
+1678    
+1679    
+1680    
+== sql/queries/step6_genre_relative_ratings.sql
+movie_id  title                                                                        genre       movie_mean  genre_mean  diff_from_genre  num_ratings
+--------  ---------------------------------------------------------------------------  ----------  ----------  ----------  ---------------  -----------
+408       Close Shave, A (1995)                                                        Comedy      4.491       3.394       1.097            112        
+169       Wrong Trousers, The (1993)                                                   Comedy      4.466       3.394       1.072            118        
+408       Close Shave, A (1995)                                                        Thriller    4.491       3.509       0.982            112        
+408       Close Shave, A (1995)                                                        Animation   4.491       3.577       0.914            112        
+480       North by Northwest (1959)                                                    Comedy      4.285       3.394       0.891            179        
+169       Wrong Trousers, The (1993)                                                   Animation   4.466       3.577       0.889            118        
+603       Rear Window (1954)                                                           Thriller    4.388       3.509       0.879            209        
+50        Star Wars (1977)                                                             Action      4.358       3.48        0.878            583        
+12        Usual Suspects, The (1995)                                                   Thriller    4.386       3.509       0.877            267        
+114       Wallace & Gromit: The Best of Aardman Animation (1996)                       Animation   4.448       3.577       0.871            67         
+251       Shall We Dance? (1996)                                                       Comedy      4.261       3.394       0.867            46         
+50        Star Wars (1977)                                                             Adventure   4.358       3.504       0.855            583        
+483       Casablanca (1942)                                                            Romance     4.457       3.622       0.835            243        
+513       Third Man, The (1949)                                                        Thriller    4.333       3.509       0.824            72         
+185       Psycho (1960)                                                                Horror      4.1         3.29        0.81             239        
+127       Godfather, The (1972)                                                        Action      4.283       3.48        0.803            413        
+316       As Good As It Gets (1997)                                                    Comedy      4.196       3.394       0.802            112        
+50        Star Wars (1977)                                                             Sci-Fi      4.358       3.561       0.798            583        
+963       Some Folks Call It a Sling Blade (1993)                                      Thriller    4.293       3.509       0.784            41         
+98        Silence of the Lambs, The (1991)                                             Thriller    4.29        3.509       0.781            390        
+170       Cinema Paradiso (1988)                                                       Comedy      4.174       3.394       0.779            121        
+173       Princess Bride, The (1987)                                                   Comedy      4.173       3.394       0.779            324        
+318       Schindler's List (1993)                                                      Drama       4.466       3.687       0.779            298        
+480       North by Northwest (1959)                                                    Thriller    4.285       3.509       0.776            179        
+174       Raiders of the Lost Ark (1981)                                               Action      4.252       3.48        0.772            420        
+483       Casablanca (1942)                                                            Drama       4.457       3.687       0.769            243        
+313       Titanic (1997)                                                               Action      4.246       3.48        0.765            350        
+64        Shawshank Redemption, The (1994)                                             Drama       4.445       3.687       0.758            283        
+12        Usual Suspects, The (1995)                                                   Crime       4.386       3.632       0.753            267        
+657       Manchurian Candidate, The (1962)                                             Thriller    4.26        3.509       0.751            131        
+174       Raiders of the Lost Ark (1981)                                               Adventure   4.252       3.504       0.749            420        
+603       Rear Window (1954)                                                           Mystery     4.388       3.638       0.749            209        
+183       Alien (1979)                                                                 Horror      4.034       3.29        0.744            291        
+479       Vertigo (1958)                                                               Thriller    4.251       3.509       0.742            179        
+50        Star Wars (1977)                                                             Romance     4.358       3.622       0.737            583        
+1007      Waiting for Guffman (1996)                                                   Comedy      4.128       3.394       0.734            47         
+511       Lawrence of Arabia (1962)                                                    Adventure   4.231       3.504       0.728            173        
+515       Boot, Das (1981)                                                             Action      4.204       3.48        0.724            201        
+172       Empire Strikes Back, The (1980)                                              Action      4.204       3.48        0.724            367        
+132       Wizard of Oz, The (1939)                                                     Children's  4.077       3.353       0.724            246        
+478       Philadelphia Story, The (1940)                                               Comedy      4.115       3.394       0.721            104        
+189       Grand Day Out, A (1992)                                                      Comedy      4.106       3.394       0.712            66         
+487       Roman Holiday (1953)                                                         Comedy      4.103       3.394       0.709            68         
+187       Godfather: Part II, The (1974)                                               Action      4.187       3.48        0.706            209        
+498       African Queen, The (1951)                                                    Action      4.184       3.48        0.704            152        
+172       Empire Strikes Back, The (1980)                                              Adventure   4.204       3.504       0.701            367        
+513       Third Man, The (1949)                                                        Mystery     4.333       3.638       0.695            72         
+173       Princess Bride, The (1987)                                                   Action      4.173       3.48        0.693            324        
+474       Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1963)  Sci-Fi      4.253       3.561       0.692            194        
+223       Sling Blade (1996)                                                           Thriller    4.199       3.509       0.69             136        
+659       Arsenic and Old Lace (1944)                                                  Comedy      4.078       3.394       0.684            115        
+498       African Queen, The (1951)                                                    Adventure   4.184       3.504       0.681            152        
+168       Monty Python and the Holy Grail (1974)                                       Comedy      4.066       3.394       0.672            316        
+22        Braveheart (1995)                                                            Action      4.152       3.48        0.671            297        
+173       Princess Bride, The (1987)                                                   Adventure   4.173       3.504       0.669            324        
+83        Much Ado About Nothing (1993)                                                Comedy      4.063       3.394       0.668            176        
+194       Sting, The (1973)                                                            Comedy      4.058       3.394       0.664            241        
+178       12 Angry Men (1957)                                                          Drama       4.344       3.687       0.657            125        
+45        Eat Drink Man Woman (1994)                                                   Comedy      4.05        3.394       0.656            80         
+208       Young Frankenstein (1974)                                                    Horror      3.945       3.29        0.655            200        
+302       L.A. Confidential (1997)                                                     Thriller    4.162       3.509       0.653            297        
+127       Godfather, The (1972)                                                        Crime       4.283       3.632       0.651            413        
+318       Schindler's List (1993)                                                      War         4.466       3.816       0.651            298        
+100       Fargo (1996)                                                                 Thriller    4.156       3.509       0.647            508        
+172       Empire Strikes Back, The (1980)                                              Sci-Fi      4.204       3.561       0.644            367        
+8         Babe (1995)                                                                  Children's  3.995       3.353       0.642            219        
+483       Casablanca (1942)                                                            War         4.457       3.816       0.641            243        
+648       Quiet Man, The (1952)                                                        Comedy      4.03        3.394       0.636            67         
+709       Strictly Ballroom (1992)                                                     Comedy      4.029       3.394       0.635            104        
+524       Great Dictator, The (1940)                                                   Comedy      4.022       3.394       0.628            46         
+654       Chinatown (1974)                                                             Thriller    4.136       3.509       0.627            147        
+490       To Catch a Thief (1955)                                                      Comedy      4.02        3.394       0.626            50         
+313       Titanic (1997)                                                               Romance     4.246       3.622       0.624            350        
+423       E.T. the Extra-Terrestrial (1982)                                            Fantasy     3.833       3.215       0.618            300        
+604       It Happened One Night (1934)                                                 Comedy      4.012       3.394       0.618            81         
+479       Vertigo (1958)                                                               Mystery     4.251       3.638       0.613            179        
+23        Taxi Driver (1976)                                                           Thriller    4.121       3.509       0.612            182        
+134       Citizen Kane (1941)                                                          Drama       4.293       3.687       0.606            198        
+430       Duck Soup (1933)                                                             Comedy      4.0         3.394       0.606            93         
+494       His Girl Friday (1940)                                                       Comedy      4.0         3.394       0.606            56         
+489       Notorious (1946)                                                             Thriller    4.115       3.509       0.606            52         
+512       Wings of Desire (1987)                                                       Comedy      4.0         3.394       0.606            57         
+963       Some Folks Call It a Sling Blade (1993)                                      Drama       4.293       3.687       0.605            41         
+427       To Kill a Mockingbird (1962)                                                 Drama       4.292       3.687       0.605            219        
+357       One Flew Over the Cuckoo's Nest (1975)                                       Drama       4.292       3.687       0.604            264        
+98        Silence of the Lambs, The (1991)                                             Drama       4.29        3.687       0.602            390        
+8         Babe (1995)                                                                  Comedy      3.995       3.394       0.601            219        
+520       Great Escape, The (1963)                                                     Adventure   4.105       3.504       0.601            124        
+523       Cool Hand Luke (1967)                                                        Comedy      3.994       3.394       0.6              164        
+242       Kolya (1996)                                                                 Comedy      3.991       3.394       0.597            117        
+651       Glory (1989)                                                                 Action      4.076       3.48        0.596            171        
+127       Godfather, The (1972)                                                        Drama       4.283       3.687       0.596            413        
+519       Treasure of the Sierra Madre, The (1948)                                     Adventure   4.1         3.504       0.596            80         
+315       Apt Pupil (1998)                                                             Thriller    4.1         3.509       0.591            160        
+185       Psycho (1960)                                                                Thriller    4.1         3.509       0.591            239        
+482       Some Like It Hot (1959)                                                      Comedy      3.984       3.394       0.59             128        
+172       Empire Strikes Back, The (1980)                                              Romance     4.204       3.622       0.583            367        
+285       Secrets & Lies (1996)                                                        Drama       4.265       3.687       0.578            162        
+89        Blade Runner (1982)                                                          Sci-Fi      4.138       3.561       0.577            275        
+272       Good Will Hunting (1997)                                                     Drama       4.263       3.687       0.575            198        
+516       Local Hero (1983)                                                            Comedy      3.968       3.394       0.574            63         
+132       Wizard of Oz, The (1939)                                                     Adventure   4.077       3.504       0.574            246        
+484       Maltese Falcon, The (1941)                                                   Mystery     4.21        3.638       0.572            138        
+659       Arsenic and Old Lace (1944)                                                  Thriller    4.078       3.509       0.569            115        
+79        Fugitive, The (1993)                                                         Action      4.045       3.48        0.564            336        
+498       African Queen, The (1951)                                                    Romance     4.184       3.622       0.563            152        
+313       Titanic (1997)                                                               Drama       4.246       3.687       0.558            350        
+132       Wizard of Oz, The (1939)                                                     Musical     4.077       3.521       0.556            246        
+435       Butch Cassidy and the Sundance Kid (1969)                                    Comedy      3.949       3.394       0.555            216        
+183       Alien (1979)                                                                 Action      4.034       3.48        0.554            291        
+187       Godfather: Part II, The (1974)                                               Crime       4.187       3.632       0.554            209        
+170       Cinema Paradiso (1988)                                                       Romance     4.174       3.622       0.552            121        
+173       Princess Bride, The (1987)                                                   Romance     4.173       3.622       0.551            324        
+208       Young Frankenstein (1974)                                                    Comedy      3.945       3.394       0.551            200        
+500       Fly Away Home (1996)                                                         Children's  3.903       3.353       0.55             31         
+936       Brassed Off (1996)                                                           Comedy      3.938       3.394       0.543            32         
+50        Star Wars (1977)                                                             War         4.358       3.816       0.543            583        
+615       39 Steps, The (1935)                                                         Thriller    4.051       3.509       0.542            59         
+481       Apartment, The (1960)                                                        Comedy      3.937       3.394       0.542            63         
+79        Fugitive, The (1993)                                                         Thriller    4.045       3.509       0.536            336        
+200       Shining, The (1980)                                                          Horror      3.825       3.29        0.535            206        
+269       Full Monty, The (1997)                                                       Comedy      3.927       3.394       0.533            315        
+945       Charade (1963)                                                               Comedy      3.925       3.394       0.531            40         
+189       Grand Day Out, A (1992)                                                      Animation   4.106       3.577       0.529            66         
+302       L.A. Confidential (1997)                                                     Crime       4.162       3.632       0.529            297        
+181       Return of the Jedi (1983)                                                    Action      4.008       3.48        0.528            507        
+96        Terminator 2: Judgment Day (1991)                                            Action      4.007       3.48        0.527            295        
+183       Alien (1979)                                                                 Thriller    4.034       3.509       0.525            291        
+191       Amadeus (1984)                                                               Mystery     4.163       3.638       0.525            276        
+641       Paths of Glory (1957)                                                        Drama       4.212       3.687       0.525            33         
+1         Toy Story (1995)                                                             Children's  3.878       3.353       0.525            452        
+100       Fargo (1996)                                                                 Crime       4.156       3.632       0.523            508        
+302       L.A. Confidential (1997)                                                     Mystery     4.162       3.638       0.523            297        
+530       Man Who Would Be King, The (1975)                                            Adventure   4.025       3.504       0.521            80         
+211       M*A*S*H (1970)                                                               Comedy      3.913       3.394       0.519            206        
+443       Birds, The (1963)                                                            Horror      3.809       3.29        0.518            162        
+514       Annie Hall (1977)                                                            Comedy      3.911       3.394       0.517            180        
+515       Boot, Das (1981)                                                             Drama       4.204       3.687       0.517            201        
+172       Empire Strikes Back, The (1980)                                              Drama       4.204       3.687       0.517            367        
+216       When Harry Met Sally... (1989)                                               Comedy      3.91        3.394       0.516            290        
+493       Thin Man, The (1934)                                                         Mystery     4.15        3.638       0.512            60         
+209       This Is Spinal Tap (1984)                                                    Comedy      3.906       3.394       0.512            191        
+663       Being There (1979)                                                           Comedy      3.905       3.394       0.511            116        
+223       Sling Blade (1996)                                                           Drama       4.199       3.687       0.511            136        
+490       To Catch a Thief (1955)                                                      Thriller    4.02        3.509       0.511            50         
+316       As Good As It Gets (1997)                                                    Drama       4.196       3.687       0.509            112        
+181       Return of the Jedi (1983)                                                    Adventure   4.008       3.504       0.504            507        
+== sql/queries/step7_nulls.sql
+movie_id_nulls  title_nulls  release_date_nulls  imdb_url_nulls
+--------------  -----------  ------------------  --------------
+0               0            1                   3             
+movie_id  title                   release_date  imdb_url
+--------  ----------------------  ------------  --------
+267       unknown                                       
+1358      The Deadly Cure (1996)  1996-09-16            
+1359      Boys in Venice (1996)   1996-09-24            
+not_in_count
+------------
+0           
+not_exists_count
+----------------
+1680            

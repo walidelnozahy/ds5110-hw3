@@ -1,13 +1,26 @@
 # DS5110 Homework 3: MovieLens 100K in SQLite
 
-Team: A (Walid), B, C.
+Team: Walid Elnozahy, Max Goldmuntz, Sandeep Samuel Jayakumar.
 
 ## How to run it
 
-You need Python 3 with SQLite 3.37 or newer, because the tables use `STRICT` mode. Check with `python3 -c "import sqlite3; print(sqlite3.sqlite_version)"`.
+You need:
+- Python 3.11 or newer, with SQLite 3.37 or newer, because the tables use `STRICT` mode. Check with `python3 -c "import sqlite3; print(sqlite3.sqlite_version)"`.
+- The `sqlite3` command-line tool, which runs the queries.
 
 ```bash
-make download   # download the data and unzip it into raw/
+make            # download the data if needed, build data/movielens.db, write output/rejected.csv and output/query_results.txt
+make queries    # show the query results in the terminal
+make clean      # delete the database and the outputs, to start again
+```
+
+The pandas scripts need the packages in `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+python3 src/describe.py              # Step 0: describe the raw files, save the charts to figures/
+python3 src/q6_pandas.py             # Step 7d: Q6 again in pandas
+python3 src/step7_missing_pandas.py  # Step 7c: types and missing values after read_sql
 ```
 
 ## Where the data comes from
@@ -67,6 +80,6 @@ PK is the column that identifies each row. FK is a column that points to a row i
 
 ## Use of AI
 
-- **Walid:** used Claude to draft the download script, the Makefile and this README, and to check the schema against the raw data. I reviewed every line.
+- **Walid:** used Claude to draft the download script, the Makefile, this README, Step 8 and `CONTRIBUTIONS.md`, to check the schema against the raw data, and to help review the team's pull requests by re-running their numbers. I reviewed every line.
 - **Sandeep:** used Claude to draft the SQL queries, the pandas check, `src/describe.py` and the matching write-up sections, and to run them. The predicted row counts in the query files were written after the queries had run. I can explain every query.
-- **Max** Gemini used to help brainstorm the date parsing in `load.py`, outline the CTE in Step 6, and draft the null check examples in Step 7. All scripts and queries were tested and verified locally.
+- **Max:** Gemini used to help brainstorm the date parsing in `load.py`, outline the CTE in Step 6, and draft the null check examples in Step 7. All scripts and queries were tested and verified locally.
